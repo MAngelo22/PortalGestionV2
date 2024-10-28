@@ -1,87 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React from 'react';
+import { useParams, Navigate } from 'react-router-dom';
+import { useEmployees } from '../contexts/EmployeeContext';
 
-interface Employee {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  profilePicture: string;
-  personalData: {
-    dateOfBirth: string;
-    address: string;
-    phoneNumber: string;
-  };
-  education: {
-    degree: string;
-    institution: string;
-    year: string;
-  }[];
-  workHistory: {
-    position: string;
-    company: string;
-    startDate: string;
-    endDate: string;
-  }[];
+interface WorkHistory {
+  position: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+}
+
+interface Education {
+  degree: string;
+  institution: string;
+  year: string;
 }
 
 const EmployeeProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [employee, setEmployee] = useState<Employee | null>(null);
-
-  useEffect(() => {
-    // In a real application, you would fetch this data from an API
-    const mockEmployee: Employee = {
-      id: id || '',
-      name: 'Alice Johnson',
-      email: 'alice@example.com',
-      role: 'Manager',
-      profilePicture: 'https://source.unsplash.com/300x300/?portrait',
-      personalData: {
-        dateOfBirth: '1985-05-15',
-        address: '123 Main St, Anytown, USA',
-        phoneNumber: '+1 (555) 123-4567',
-      },
-      education: [
-        {
-          degree: 'Bachelor of Science in Computer Science',
-          institution: 'Tech University',
-          year: '2007',
-        },
-        {
-          degree: 'Master of Business Administration',
-          institution: 'Business School',
-          year: '2010',
-        },
-      ],
-      workHistory: [
-        {
-          position: 'Senior Software Engineer',
-          company: 'Tech Corp',
-          startDate: '2015-01-01',
-          endDate: '2020-12-31',
-        },
-        {
-          position: 'Project Manager',
-          company: 'Innovative Solutions',
-          startDate: '2021-01-01',
-          endDate: 'Present',
-        },
-      ],
-    };
-    setEmployee(mockEmployee);
-  }, [id]);
+  const { employees } = useEmployees();
+  
+  const employee = employees.find(emp => emp.id === id);
 
   if (!employee) {
-    return <div>Loading...</div>;
+    return <Navigate to="/employees" replace />;
   }
+
+  // Mock additional data based on the employee
+  const profileData = {
+    profilePicture: `https://source.unsplash.com/300x300/?portrait&${employee.id}`,
+    personalData: {
+      dateOfBirth: '1985-05-15',
+      address: '123 Main St, Anytown, USA',
+      phoneNumber: '+1 (555) 123-4567',
+    },
+    education: [
+      {
+        degree: 'Bachelor of Science in Computer Science',
+        institution: 'Tech University',
+        year: '2007',
+      },
+      {
+        degree: 'Master of Business Administration',
+        institution: 'Business School',
+        year: '2010',
+      },
+    ] as Education[],
+    workHistory: [
+      {
+        position: 'Senior Software Engineer',
+        company: 'Tech Corp',
+        startDate: '2015-01-01',
+        endDate: '2020-12-31',
+      },
+      {
+        position: 'Project Manager',
+        company: 'Innovative Solutions',
+        startDate: '2021-01-01',
+        endDate: 'Present',
+      },
+    ] as WorkHistory[],
+  };
 
   return (
     <div className="bg-white shadow overflow-hidden sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6 flex items-center">
         <img
           className="h-24 w-24 rounded-full object-cover mr-6"
-          src={employee.profilePicture}
+          src={profileData.profilePicture}
           alt={employee.name}
         />
         <div>
@@ -96,22 +81,22 @@ const EmployeeProfile: React.FC = () => {
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{employee.email}</dd>
           </div>
           <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Date of Birth</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{employee.personalData.dateOfBirth}</dd>
+            <dt className="text-sm font-medium text-gray-500">Cumpleaños</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{profileData.personalData.dateOfBirth}</dd>
           </div>
           <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Address</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{employee.personalData.address}</dd>
+            <dt className="text-sm font-medium text-gray-500">Dirección</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{profileData.personalData.address}</dd>
           </div>
           <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Phone Number</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{employee.personalData.phoneNumber}</dd>
+            <dt className="text-sm font-medium text-gray-500">Nº de teléfono</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{profileData.personalData.phoneNumber}</dd>
           </div>
           <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Education</dt>
+            <dt className="text-sm font-medium text-gray-500">Educación</dt>
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
               <ul className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                {employee.education.map((edu, index) => (
+                {profileData.education.map((edu, index) => (
                   <li key={index} className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
                     <div className="w-0 flex-1 flex items-center">
                       <span className="ml-2 flex-1 w-0 truncate">
@@ -124,10 +109,10 @@ const EmployeeProfile: React.FC = () => {
             </dd>
           </div>
           <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-            <dt className="text-sm font-medium text-gray-500">Work History</dt>
+            <dt className="text-sm font-medium text-gray-500">Trayectoria</dt>
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
               <ul className="border border-gray-200 rounded-md divide-y divide-gray-200">
-                {employee.workHistory.map((work, index) => (
+                {profileData.workHistory.map((work, index) => (
                   <li key={index} className="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
                     <div className="w-0 flex-1 flex items-center">
                       <span className="ml-2 flex-1 w-0 truncate">

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useEmployees } from '../contexts/EmployeeContext.tsx';
 
-interface Employee {
-  id?: string;
+
+interface EmployeeFormData {
   name: string;
   email: string;
   role: string;
@@ -11,7 +12,8 @@ interface Employee {
 const EmployeeForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [employee, setEmployee] = useState<Employee>({
+  const { employees, addEmployee, updateEmployee } = useEmployees();
+  const [formData, setFormData] = useState<EmployeeFormData>({
     name: '',
     email: '',
     role: 'Employee',
@@ -19,27 +21,29 @@ const EmployeeForm: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      // In a real application, you would fetch the employee data from an API
-      // For this example, we'll use mock data
-      const mockEmployee: Employee = {
-        id: id,
-        name: 'John Doe',
-        email: 'john@example.com',
-        role: 'Manager',
-      };
-      setEmployee(mockEmployee);
+      const employee = employees.find(emp => emp.id === id);
+      if (employee) {
+        setFormData({
+          name: employee.name,
+          email: employee.email,
+          role: employee.role,
+        });
+      }
     }
-  }, [id]);
+  }, [id, employees]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setEmployee(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, you would send this data to an API
-    console.log('Employee data:', employee);
+    if (id) {
+      updateEmployee({ ...formData, id });
+    } else {
+      addEmployee(formData);
+    }
     navigate('/employees');
   };
 
@@ -48,12 +52,12 @@ const EmployeeForm: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">{id ? 'Edit Employee' : 'Add New Employee'}</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nombre</label>
           <input
             type="text"
             id="name"
             name="name"
-            value={employee.name}
+            value={formData.name}
             onChange={handleChange}
             required
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -65,22 +69,22 @@ const EmployeeForm: React.FC = () => {
             type="email"
             id="email"
             name="email"
-            value={employee.email}
+            value={formData.email}
             onChange={handleChange}
             required
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>
         <div>
-          <label htmlFor="role" className="block text-sm font-medium text-gray-700">Role</label>
+          <label htmlFor="role" className="block text-sm font-medium text-gray-700">Rol</label>
           <select
             id="role"
             name="role"
-            value={employee.role}
+            value={formData.role}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           >
-            <option value="Employee">Employee</option>
+            <option value="Empleado">Empleado</option>
             <option value="Manager">Manager</option>
             <option value="Admin">Admin</option>
           </select>

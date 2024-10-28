@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { EmployeeProvider } from './contexts/EmployeeContext.tsx';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import EmployeeList from './components/EmployeeList';
@@ -11,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <AuthProvider>
+      <EmployeeProvider>
       <Router>
         <div className="min-h-screen bg-gray-100">
           <Routes>
@@ -25,6 +27,7 @@ function App() {
           </Routes>
         </div>
       </Router>
+      </EmployeeProvider>
     </AuthProvider>
   );
 }
